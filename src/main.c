@@ -19,9 +19,9 @@ int main(int argc, char **argv) {
 	bool redraw = true;
        	
 
-	if(!al_init() || !al_init_image_addon() || !al_init_primitives_addon()) {
+	if(!al_init() || !al_init_image_addon() || !al_init_primitives_addon() || !al_install_mouse()) {
 		fprintf(stderr, "Failed to initialize allegro!\n");
-		return -1;
+		goto error_state;
 	}
 
 	al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 	display = al_create_display(disp_data.width, disp_data.height);
 	if(!display) {
 		fprintf(stderr, "Failed to create display");
-		return -1;
+		goto error_state;
 	}
 
 	bouncer_x = disp_data.width / 2.0 - BOUNCER_SIZE / 2.0;
@@ -39,9 +39,7 @@ int main(int argc, char **argv) {
 	bouncer = al_create_bitmap(BOUNCER_SIZE, BOUNCER_SIZE);
 	if(!bouncer) {
 		fprintf(stderr, "Failed to create bitmap!\n");
-		al_destroy_display(display);
-		al_destroy_timer(timer);
-		return -1;
+		goto error_destroy_display;
 	}
 
 	al_set_target_bitmap(bouncer);
@@ -51,19 +49,18 @@ int main(int argc, char **argv) {
 	timer = al_create_timer (1.0 / FPS);
 	if(!timer) {
 		fprintf(stderr, "Failed to create timer!\n");
+		goto error_destroy_bouncer;
 	}
 	
 	event_queue = al_create_event_queue();
 	if(!event_queue) {
 		fprintf(stderr, "Failed to create event queue!\n");
-		al_destroy_bitmap(bouncer);
-		al_destroy_display(display);
-		al_destroy_timer(timer);
-		return -1;
+		goto error_destroy_timer;
 	}
 
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
+	al_register_event_source(event_queue, al_get_mouse_event_source());
 	al_clear_to_color(al_map_rgb(0,0,0));
 	al_flip_display();
 	al_start_timer(timer);
@@ -73,7 +70,8 @@ int main(int argc, char **argv) {
 
 		al_wait_for_event(event_queue, &ev);
 
-		if(ev.type == ALLEGRO_EVENT_TIMER){
+		switch(ev.type) {
+		case ALLEGRO_EVENT_TIMER:
 			if(bouncer_x < 0 || bouncer_x > disp_data.width - BOUNCER_SIZE) 
 				bouncer_dir_x = -bouncer_dir_x;
 			if(bouncer_y < 0 || bouncer_y > disp_data.height - BOUNCER_SIZE)
@@ -83,9 +81,16 @@ int main(int argc, char **argv) {
 			bouncer_y += bouncer_dir_y;
 
 			redraw = true;
-		}
-		else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			break;
+		case ALLEGRO_EVENT_DISPLAY_CLOSE: 
+			goto clean_exit;
+		case ALLEGRO_EVENT_MOUSE_AXES:
+		case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+			bouncer_x = ev.mouse.x;
+			bouncer_y = ev.mouse.y;
+			break;
+		case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+			goto clean_exit;
 		}
 
 		if(redraw && al_is_event_queue_empty(event_queue)) {
@@ -97,9 +102,23 @@ int main(int argc, char **argv) {
 		
 	}
 
+clean_exit:
 	al_destroy_bitmap(bouncer);
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
 	return 0;
+
+	/**Error exits **/
+error_destroy_event_queue:
+	al_destroy_event_queue(event_queue);
+error_destroy_timer:
+	al_destroy_timer(timer);
+error_destroy_bouncer:
+	al_destroy_bitmap(bouncer);
+error_destroy_display:
+	al_destroy_display(display);
+error_state:
+	return -1;
+
 }
