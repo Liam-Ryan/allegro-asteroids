@@ -2,7 +2,11 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
- 
+#include <math.h>
+#include "ship.h"
+
+#define DEGREE(x) ((x) * ((180.0) / (M_PI)))  
+
 const float FPS = 60;
 const float BOUNCER_SIZE = 32;
 
@@ -12,11 +16,13 @@ int main(int argc, char **argv) {
 	ALLEGRO_DISPLAY_MODE disp_data;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_BITMAP *bouncer = NULL;
+	ALLEGRO_TRANSFORM transform;
 	float bouncer_x = 0;
 	float bouncer_y = 0;
 	float bouncer_dir_x = -4.0;
 	float bouncer_dir_y = 4.0;
 	bool redraw = true;
+
        	
 
 	if(!al_init() || !al_init_image_addon() || !al_init_primitives_addon() || !al_install_mouse()) {
@@ -41,6 +47,8 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to create bitmap!\n");
 		goto error_destroy_display;
 	}
+
+	ship *s = create_ship(disp_data.width / 2.0, disp_data.height / 2.0, 0, al_map_rgb(122, 122, 122));
 
 	al_set_target_bitmap(bouncer);
 	al_clear_to_color(al_map_rgb(255,0,255));
@@ -72,13 +80,16 @@ int main(int argc, char **argv) {
 
 		switch(ev.type) {
 		case ALLEGRO_EVENT_TIMER:
-			if(bouncer_x < 0 || bouncer_x > disp_data.width - BOUNCER_SIZE) 
-				bouncer_dir_x = -bouncer_dir_x;
-			if(bouncer_y < 0 || bouncer_y > disp_data.height - BOUNCER_SIZE)
-				bouncer_dir_y = -bouncer_dir_y;
+		//	if(bouncer_x < 0 || bouncer_x > disp_data.width - BOUNCER_SIZE) 
+		//		bouncer_dir_x = -bouncer_dir_x;
+		//	if(bouncer_y < 0 || bouncer_y > disp_data.height - BOUNCER_SIZE)
+		//		bouncer_dir_y = -bouncer_dir_y;
 			
-			bouncer_x += bouncer_dir_x;
-			bouncer_y += bouncer_dir_y;
+		//	bouncer_x += bouncer_dir_x;
+		//	bouncer_y += bouncer_dir_y;
+		//		draw_ship(&ship_transform, s);
+
+
 
 			redraw = true;
 			break;
@@ -96,7 +107,16 @@ int main(int argc, char **argv) {
 		if(redraw && al_is_event_queue_empty(event_queue)) {
 			redraw = false;
 			al_clear_to_color(al_map_rgb(0,0,0));
-			al_draw_bitmap(bouncer, bouncer_x, bouncer_y, 0);
+		         al_draw_triangle( -10 , 0 , 10, 0 , 0 , -30, s->color, 3.0f);
+
+		         al_identity_transform(&transform);
+		         al_rotate_transform(&transform, DEGREE(s->heading));
+		         al_translate_transform(&transform, s->pos_x, s->pos_y);
+		         al_use_transform(&transform);
+		         //al_draw_triangle( -10 , 0 , 10, 0 , 0 , -30, s->color, 3.0f);
+			 
+		         //al_draw_triangle( s->pos_x , s->pos_y , s->pos_x, s->pos_y , s->pos_x , s->pos_y, s->color, 3.0f);
+
 			al_flip_display();
 		}
 		
