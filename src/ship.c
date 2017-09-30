@@ -8,9 +8,9 @@ const float SHIP_HEIGHT = 30;
 const float SHIP_WIDTH = 20;
 const float SHIP_INITIAL_HEADING = 0;
 const float SHIP_LINEWIDTH = 3;
-const float VEL_INC = .1;
+const float VEL_INC = .0001;
 const float MAX_VEL = 2;
-const float YAW_INC = 1;
+const float YAW_INC = 2;
 
 
 
@@ -39,7 +39,7 @@ int draw_ship(ALLEGRO_TRANSFORM transform, ship *s)
 	al_rotate_transform(&transform, RADIANS(s->heading));
 	al_translate_transform(&transform, s->pos_x, s->pos_y);
 	al_use_transform(&transform);
-	al_draw_triangle( -x_coord , y_coord , 0, -y_coord, x_coord, y_coord , s->color, SHIP_LINEWIDTH);
+	al_draw_triangle(0, -y_coord, -x_coord , y_coord , x_coord, y_coord , s->color, SHIP_LINEWIDTH);
 }
 
 int ship_move(bool forward, bool left, bool right, ship *s)
@@ -55,8 +55,8 @@ int ship_move(bool forward, bool left, bool right, ship *s)
 	if(s->heading > 359)
 		s->heading -= 360;
 	if(forward){
-		s->vel_x += cos(RADIANS(s->heading));
-		s->vel_y += sin(RADIANS(s->heading));
+		s->vel_x += sin(2 * M_PI * (s->heading / 360));
+		s->vel_y -= cos(2 * M_PI * (s->heading / 360));
 	}
 	if(s->vel_x > MAX_VEL)
 		s->vel_x = MAX_VEL;
