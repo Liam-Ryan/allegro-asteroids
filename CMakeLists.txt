@@ -9,5 +9,5 @@ pkg_search_module(ALLEGRO REQUIRED allegro-5)
 pkg_search_module(ALLEGRO_IMAGES REQUIRED allegro_image-5)
 pkg_search_module(ALLEGRO_PRIMITIVES REQUIRED allegro_primitives-5)
 
-target_link_libraries(allegro_asteroids ${ALLEGRO_LIBRARIES} ${ALLEGRO_IMAGES_LIBRARIES} ${ALLEGRO_PRIMITIVES_LIBRARIES})
+target_link_libraries(allegro_asteroids ${ALLEGRO_LIBRARIES} ${ALLEGRO_IMAGES_LIBRARIES} ${ALLEGRO_PRIMITIVES_LIBRARIES} m)
 target_include_directories(allegro_asteroids PUBLIC ${ALLEGRO_INCLUDE_DIRS})
