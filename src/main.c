@@ -3,6 +3,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include "ship.h"
+#include "asteroid.h"
 
 const float FPS = 60;
 enum KEYS {
@@ -37,6 +38,7 @@ int main(int argc, char **argv) {
 	}
 
 	ship *s = create_ship(disp_data.width / 2.0, disp_data.height / 2.0, 0, al_map_rgb(122, 122, 122));
+	asteroid *a = create_asteroid(disp_data.width / 4.0, disp_data.height / 4.0, 2.0, 1, 4, al_map_rgb(128, 0, 128 ));
 
 	timer = al_create_timer (1.0 / FPS);
 	if(!timer) {
@@ -63,6 +65,8 @@ int main(int argc, char **argv) {
 
 		switch(ev.type) {
 		case ALLEGRO_EVENT_TIMER:
+			move_ship(key[KEY_UP], key[KEY_LEFT], key[KEY_RIGHT], s, disp_data);
+			move_asteroid(a);
 			redraw = true;
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE: 
@@ -98,9 +102,9 @@ int main(int argc, char **argv) {
 
 		if(redraw && al_is_event_queue_empty(event_queue)) {
 			redraw = false;
-			ship_move(key[KEY_UP], key[KEY_LEFT], key[KEY_RIGHT], s);
 			al_clear_to_color(al_map_rgb(0,0,0));
 			draw_ship(transform, s);
+			draw_asteroid(transform, a);
 			al_flip_display();
 		}
 		

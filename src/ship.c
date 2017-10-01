@@ -10,8 +10,8 @@ const float SHIP_INITIAL_HEADING = 0;
 const float SHIP_LINEWIDTH = 3;
 const float VEL_INC = .1;
 const float MAX_VEL = 2;
-const float YAW_INC = .055555;
-
+const float YAW_INC = .05;
+const CIRCLE_RADS = 2 * M_PI;
 
 
 ship *create_ship(float pos_x, float pos_y, float heading, ALLEGRO_COLOR color)
@@ -42,27 +42,26 @@ int draw_ship(ALLEGRO_TRANSFORM transform, ship *s)
 	al_draw_triangle(0, -y_coord, -x_coord , y_coord , x_coord, y_coord , s->color, SHIP_LINEWIDTH);
 }
 
-int ship_move(bool forward, bool left, bool right, ship *s)
+float clamp_rads( float rads) {
+	rads = fmod(rads, CIRCLE_RADS);
+	if (rads < 0)
+		rads += CIRCLE_RADS;
+	return rads;
+}
+
+int move_ship(bool forward, bool left, bool right, ship *s, ALLEGRO_DISPLAY_MODE display_data)
 {
 	if(left) 
 		s->heading -= YAW_INC;
 	if(right)
 		s->heading += YAW_INC;
+//	TODO - FIX BUG, JUMPS ONCE PER REVOLUTION
+//	s->heading = clamp_rads(s->heading);
 	if(forward){
 		s->vel_x -= sin(-s->heading) * VEL_INC;
 		s->vel_y -= cos(-s->heading) * VEL_INC;
 	}
-
-/*
-	if(s->heading < 0)
-	       s->heading += 360;	
-	if(s->heading > 359)
-		s->heading -= 360;
-	if(forward){
-		s->vel_x += sin(2 * M_PI * (s->heading / 360));
-		s->vel_y -= cos(2 * M_PI * (s->heading / 360));
-	}
-*/
+	
 	if(s->vel_x > MAX_VEL)
 		s->vel_x = MAX_VEL;
 	if(s->vel_y > MAX_VEL)
@@ -74,4 +73,15 @@ int ship_move(bool forward, bool left, bool right, ship *s)
 	
 	s->pos_x += s->vel_x;
 	s->pos_y += s->vel_y;
+
+	if(s->pos_x > display_data.width) 
+		s->pos_x -= display_data.width;
+	if(s->pos_x < 0)
+		s->pos_x += display_data.width;
+	if(s->pos_y < 0) 
+		s->pos_y += display_data.height;
+	if(s->pos_y > display_data.height)
+		s->pos_y -= display_data.height;
+	
+
 }

@@ -2,8 +2,6 @@
 #define SHIP_H
 #include <math.h>
 #include <allegro5/allegro.h>
-#define RADIANS(x) (x * M_PI / 180.0)
-#define DEGREES(x) (x * 180.0 / M_PI)
 
 extern const float 
 	SHIP_HEIGHT,
@@ -28,6 +26,6 @@ ship *create_ship(float pos_x, float pos_y, float heading, ALLEGRO_COLOR color);
 
 int draw_ship(ALLEGRO_TRANSFORM transform, ship *s);
 
-int ship_move(bool forward, bool left, bool right, ship *s);
+int move_ship(bool forward, bool left, bool right, ship *s, ALLEGRO_DISPLAY_MODE display_data);
 
 #endif
