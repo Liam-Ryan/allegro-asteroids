@@ -1,5 +1,6 @@
 #include "ship.h"
 #include <stdio.h>
+#include "ast_vector.h"
 
 #ifndef M_PI
 #define _USE_MATH_DEFINES
@@ -23,10 +24,8 @@ ship *create_ship(float pos_x, float pos_y, ALLEGRO_COLOR color)
 	if (!s) {
 		fprintf(stderr, "Memory error when creating ship!\n");
 	} else {
-		s->pos_x = pos_x;
-		s->pos_y = pos_y;
-		s->vel_x = 0;
-		s->vel_y = 0;
+		s->pos = *ast_create_vector(pos_x, pos_y);
+		s->vel = *ast_create_vector(0, 0);
 		s->is_dead = false;
 		s->heading = SHIP_INITIAL_HEADING;
 		s->color = color;
@@ -41,7 +40,7 @@ int draw_ship(ship *s)
 	ALLEGRO_TRANSFORM transform;
 	al_identity_transform(&transform);
 	al_rotate_transform(&transform, (float) s->heading);
-	al_translate_transform(&transform, s->pos_x, s->pos_y);
+	al_translate_transform(&transform, s->pos.x, s->pos.y);
 	al_use_transform(&transform);
 	al_draw_triangle(0, -y_coord, -x_coord, y_coord, x_coord, y_coord, s->color, SHIP_LINEWIDTH);
 }
@@ -63,30 +62,29 @@ int move_ship(bool forward, bool left, bool right, ship *s, ALLEGRO_DISPLAY_MODE
 //	TODO - FIX BUG, JUMPS ONCE PER REVOLUTION
 //	s->heading = clamp_rads(s->heading);
 	if (forward) {
-		s->vel_x -= sin(-s->heading) * VEL_INC;
-		s->vel_y -= cos(-s->heading) * VEL_INC;
+		s->vel.x -= sin(-s->heading) * VEL_INC;
+		s->vel.y -= cos(-s->heading) * VEL_INC;
 	}
 
-	if (s->vel_x > MAX_VEL)
-		s->vel_x = MAX_VEL;
-	if (s->vel_y > MAX_VEL)
-		s->vel_y = MAX_VEL;
-	if (s->vel_x < -MAX_VEL)
-		s->vel_x = -MAX_VEL;
-	if (s->vel_y < -MAX_VEL)
-		s->vel_y = -MAX_VEL;
+	if (s->vel.x > MAX_VEL)
+		s->vel.x = MAX_VEL;
+	if (s->vel.y > MAX_VEL)
+		s->vel.y = MAX_VEL;
+	if (s->vel.x < -MAX_VEL)
+		s->vel.x = -MAX_VEL;
+	if (s->vel.y < -MAX_VEL)
+		s->vel.y = -MAX_VEL;
 
-	s->pos_x += s->vel_x;
-	s->pos_y += s->vel_y;
+	ast_add_vector(&s->vel, &s->pos);
 
-	if (s->pos_x > display_data.width)
-		s->pos_x -= display_data.width;
-	if (s->pos_x < 0)
-		s->pos_x += display_data.width;
-	if (s->pos_y < 0)
-		s->pos_y += display_data.height;
-	if (s->pos_y > display_data.height)
-		s->pos_y -= display_data.height;
+	if (s->pos.x > display_data.width)
+		s->pos.x -= display_data.width;
+	if (s->pos.x < 0)
+		s->pos.x += display_data.width;
+	if (s->pos.y < 0)
+		s->pos.y += display_data.height;
+	if (s->pos.y > display_data.height)
+		s->pos.y -= display_data.height;
 
 
 }

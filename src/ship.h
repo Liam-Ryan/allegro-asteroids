@@ -1,6 +1,7 @@
 #ifndef SHIP_H
 #define SHIP_H
 
+#include "ast_vector.h"
 #include <math.h>
 #include <allegro5/allegro.h>
 
@@ -10,10 +11,8 @@ extern const float
 	SHIP_LINEWIDTH;
 
 typedef struct ship {
-	float pos_x;
-	float pos_y;
-	float vel_x;
-	float vel_y;
+	ast_vector pos;
+	ast_vector vel;
 	double heading;
 	bool is_dead;
 	ALLEGRO_COLOR color;
