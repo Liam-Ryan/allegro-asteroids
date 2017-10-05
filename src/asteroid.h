@@ -1,15 +1,16 @@
 #ifndef ASTEROID_H
 #define ASTEROID_H
 
+#include "screen_handler.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
+#include "ast_vector.h"
 
 typedef struct asteroid {
-	double pos_x;
-	double pos_y;
+	ast_vector pos;
+	ast_vector vel;
 	double heading;
-	float spd;
 	float rot_dir;
 	float rot_spd;
 	float size;

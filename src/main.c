@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
 #include "ship.h"
 #include "asteroid.h"
+#include "blast.h"
 
 const float FPS = 60;
+const unsigned char MAX_SHOTS = 5;
 enum KEYS {
 	KEY_UP, KEY_LEFT, KEY_RIGHT
 };
@@ -23,17 +22,23 @@ int main(int argc, char **argv)
 	al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
 	al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
 
+	asteroid *asts[20];
+	blast *blasts[MAX_SHOTS];
+	unsigned char num_shots = 0;
+	unsigned char num_asts = 0;
+
 	bool key[3] = {false, false, false};
 	bool redraw = true;
+	bool shots_fired = false;
 
 
-	if (!al_init() || !al_init_image_addon() || !al_init_primitives_addon() || !al_install_keyboard()) {
+	if (!al_init() || !al_init_primitives_addon() || !al_install_keyboard()) {
 		fprintf(stderr, "Failed to initialize allegro!\n");
 		goto error_state;
 	}
 
-//	al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
-	al_get_display_mode(0, &disp_data);
+	al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
+//	al_get_display_mode(0, &disp_data);
 
 //	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 	display = al_create_display(disp_data.width, disp_data.height);
@@ -42,8 +47,6 @@ int main(int argc, char **argv)
 		goto error_state;
 	}
 
-	asteroid *asts[20];
-	int num_asts = 0;
 	ship *s = create_ship(disp_data.width / 2, disp_data.height / 2, al_map_rgb(122, 122, 122));
 
 	asts[num_asts++] = create_asteroid(disp_data, 2, 4,
@@ -80,6 +83,12 @@ int main(int argc, char **argv)
 								   al_map_rgb(128, 0, 128));
 			for (int i = 0; i < num_asts; i++)
 				move_asteroid(asts[i], disp_data);
+			if(shots_fired && num_shots < MAX_SHOTS) {
+				blasts[num_shots++] = create_blast(s);
+				shots_fired = false;
+			}
+			for(int i = 0; i < num_shots; i++)
+				move_blast(blasts[i], disp_data);
 			redraw = true;
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -94,6 +103,9 @@ int main(int argc, char **argv)
 				break;
 			case ALLEGRO_KEY_RIGHT:
 				key[KEY_RIGHT] = true;
+				break;
+			case ALLEGRO_KEY_SPACE:
+				shots_fired = true;
 				break;
 			}
 			break;
@@ -119,6 +131,8 @@ int main(int argc, char **argv)
 			draw_ship(s);
 			for (int i = 0; i < num_asts; i++)
 				draw_asteroid(asts[i]);
+			for (int i = 0; i < num_shots; i++)
+				draw_blast(blasts[i]);
 			al_flip_display();
 		}
 

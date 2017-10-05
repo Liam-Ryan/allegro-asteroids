@@ -1,12 +1,4 @@
 #include "ship.h"
-#include <stdio.h>
-#include "ast_vector.h"
-
-#ifndef M_PI
-#define _USE_MATH_DEFINES
-#endif
-
-#include <allegro5/allegro_primitives.h>
 
 const float SHIP_HEIGHT = 30;
 const float SHIP_WIDTH = 20;
@@ -33,16 +25,16 @@ ship *create_ship(float pos_x, float pos_y, ALLEGRO_COLOR color)
 	return s;
 }
 
-int draw_ship(ship *s)
+void draw_ship_fn(void *object)
 {
 	float x_coord = SHIP_WIDTH / 2;
 	float y_coord = SHIP_HEIGHT / 2;
-	ALLEGRO_TRANSFORM transform;
-	al_identity_transform(&transform);
-	al_rotate_transform(&transform, (float) s->heading);
-	al_translate_transform(&transform, s->pos.x, s->pos.y);
-	al_use_transform(&transform);
-	al_draw_triangle(0, -y_coord, -x_coord, y_coord, x_coord, y_coord, s->color, SHIP_LINEWIDTH);
+	al_draw_triangle(0, -y_coord, -x_coord, y_coord, x_coord, y_coord, ((ship*)object)->color, SHIP_LINEWIDTH);
+}
+
+int draw_ship(ship *s)
+{
+	screen_handler_draw(s->pos, s->heading, s, draw_ship_fn);
 }
 
 double clamp_rads(double rads)
@@ -75,16 +67,8 @@ int move_ship(bool forward, bool left, bool right, ship *s, ALLEGRO_DISPLAY_MODE
 	if (s->vel.y < -MAX_VEL)
 		s->vel.y = -MAX_VEL;
 
-	ast_add_vector(&s->vel, &s->pos);
+	screen_handler_move(&s->vel, &s->pos, display_data, true);
 
-	if (s->pos.x > display_data.width)
-		s->pos.x -= display_data.width;
-	if (s->pos.x < 0)
-		s->pos.x += display_data.width;
-	if (s->pos.y < 0)
-		s->pos.y += display_data.height;
-	if (s->pos.y > display_data.height)
-		s->pos.y -= display_data.height;
 
 
 }

@@ -1,9 +1,14 @@
 #ifndef SHIP_H
 #define SHIP_H
 
+#include "screen_handler.h"
 #include "ast_vector.h"
 #include <math.h>
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#ifndef M_PI
+#define _USE_MATH_DEFINES
+#endif
 
 extern const float
 	SHIP_HEIGHT,

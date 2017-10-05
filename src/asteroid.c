@@ -19,24 +19,24 @@ asteroid *create_asteroid(ALLEGRO_DISPLAY_MODE display_mode, float size, float f
 	int spawn_side = rnd % 4;
 	switch (spawn_side) {
 	case TOP:
-		a->pos_y = 0;
-		a->pos_x = rnd % display_mode.width + 1;
+		a->pos.y = 0;
+		a->pos.x = rnd % display_mode.width + 1;
 		break;
 	case BOTTOM:
-		a->pos_y = display_mode.height;
-		a->pos_x = rnd % display_mode.width + 1;
+		a->pos.y = display_mode.height;
+		a->pos.x = rnd % display_mode.width + 1;
 		break;
 	case LEFT:
-		a->pos_y = rnd % display_mode.height + 1;
-		a->pos_x = 0;
+		a->pos.y = rnd % display_mode.height + 1;
+		a->pos.x = 0;
 		break;
 	case RIGHT:
-		a->pos_y = rnd % display_mode.height + 1;
-		a->pos_x = display_mode.width;
+		a->pos.y = rnd % display_mode.height + 1;
+		a->pos.x = display_mode.width;
 		break;
 	}
 	a->heading = ((double) rnd / (double) RAND_MAX) * (2 * M_PI + 1);
-	a->spd = AST_SPD;
+	a->vel = *ast_create_vector((float)sin(-a->heading) *AST_SPD, (float)cos(-a->heading * AST_SPD));
 	a->size = size;
 	a->color = color;
 	a->is_destroyed = false;
@@ -47,15 +47,22 @@ asteroid *create_asteroid(ALLEGRO_DISPLAY_MODE display_mode, float size, float f
 
 }
 
+void draw_asteroid_fn(void *object)
+{
+	float x_coord = (AST_WIDTH * ((asteroid*)object)->size) / 2;
+	float y_coord = (AST_HEIGHT * ((asteroid*)object)->size) / 2;
+	al_draw_rectangle(-x_coord, -y_coord, x_coord, y_coord, ((asteroid*)object)->color, AST_LINEWIDTH);
+}
+
 int draw_asteroid(asteroid *a)
 {
 	ALLEGRO_TRANSFORM transform;
-	float x_coord = (AST_WIDTH * a->size) / 2;
-	float y_coord = (AST_HEIGHT * a->size) / 2;
 	al_identity_transform(&transform);
 	al_rotate_transform(&transform, a->facing);
-	al_translate_transform(&transform, (float) a->pos_x, (float) a->pos_y);
+	al_translate_transform(&transform, a->pos.x, a->pos.y);
 	al_use_transform(&transform);
+	float x_coord = (AST_WIDTH * a->size) / 2;
+	float y_coord = (AST_HEIGHT * a->size) / 2;
 	al_draw_rectangle(-x_coord, -y_coord, x_coord, y_coord, a->color, AST_LINEWIDTH);
 
 }
@@ -63,14 +70,5 @@ int draw_asteroid(asteroid *a)
 int move_asteroid(asteroid *a, ALLEGRO_DISPLAY_MODE display_data)
 {
 	a->facing += a->rot_dir * a->rot_spd;
-	a->pos_x -= sin(-a->heading) * a->spd;
-	a->pos_y -= cos(-a->heading) * a->spd;
-	if (a->pos_x < 0)
-		a->pos_x += display_data.width;
-	if (a->pos_x > display_data.width)
-		a->pos_x -= display_data.width;
-	if (a->pos_y < 0)
-		a->pos_y += display_data.height;
-	if (a->pos_y > display_data.height)
-		a->pos_y -= display_data.height;
+	screen_handler_move(&a->vel, &a->pos, display_data, true);
 }
