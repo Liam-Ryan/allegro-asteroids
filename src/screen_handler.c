@@ -1,7 +1,6 @@
-#include "ast_vector.h"
-#include <allegro5/allegro.h>
+#include "screen_handler.h"
 
-void screen_handler_move(ast_vector *vel, ast_vector *pos, ALLEGRO_DISPLAY_MODE display_data, bool screen_wrap)
+bool screen_handler_move(ast_vector *vel, ast_vector *pos, ALLEGRO_DISPLAY_MODE display_data, bool screen_wrap)
 {
 	ast_add_vector(vel, pos);
 	if(screen_wrap) {
@@ -13,7 +12,11 @@ void screen_handler_move(ast_vector *vel, ast_vector *pos, ALLEGRO_DISPLAY_MODE 
 			pos->y += display_data.height;
 		if (pos->y > display_data.height)
 			pos->y -= display_data.height;
+	} else{
+		if( pos->x > display_data.width || pos->x < 0 || pos->y < 0 || pos->y > display_data.height)
+			return false;
 	}
+	return true;
 }
 
 void screen_handler_draw(ast_vector pos, double rot, void *object, void (*draw_shape) (void *object))

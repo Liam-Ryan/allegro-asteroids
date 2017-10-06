@@ -33,6 +33,6 @@ int draw_blast(blast *b)
 	screen_handler_draw(b->pos, b->heading, b, draw_blast_fn);
 }
 
-int move_blast(blast *b, ALLEGRO_DISPLAY_MODE display_data) {
-	screen_handler_move(&b->vel, &b->pos, display_data, false);
+bool move_blast(blast *b, ALLEGRO_DISPLAY_MODE display_data) {
+	return screen_handler_move(&b->vel, &b->pos, display_data, false);
 }

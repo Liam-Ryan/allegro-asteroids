@@ -17,7 +17,7 @@ blast *create_blast(ship *s);
 
 int draw_blast(blast *b);
 
-int move_blast(blast *b, ALLEGRO_DISPLAY_MODE display_data);
+bool move_blast(blast *b, ALLEGRO_DISPLAY_MODE display_data);
 
 
 #endif //ALLEGRO_ASTEROIDS_BLAST_H

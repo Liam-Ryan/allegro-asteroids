@@ -2,6 +2,7 @@
 #include "ship.h"
 #include "asteroid.h"
 #include "blast.h"
+#include "ast_linkedlist.h"
 
 const float FPS = 60;
 const unsigned char MAX_SHOTS = 5;
@@ -23,7 +24,8 @@ int main(int argc, char **argv)
 	al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
 
 	asteroid *asts[20];
-	blast *blasts[MAX_SHOTS];
+	ast_linkedlist *blasts = create_ast_linkedlist();
+
 	unsigned char num_shots = 0;
 	unsigned char num_asts = 0;
 
@@ -84,11 +86,23 @@ int main(int argc, char **argv)
 			for (int i = 0; i < num_asts; i++)
 				move_asteroid(asts[i], disp_data);
 			if(shots_fired && num_shots < MAX_SHOTS) {
-				blasts[num_shots++] = create_blast(s);
+				num_shots++;
+				ast_linkedlist_push(blasts, create_ast_listnode(create_blast(s)));
 				shots_fired = false;
 			}
-			for(int i = 0; i < num_shots; i++)
-				move_blast(blasts[i], disp_data);
+			ast_listnode *current = blasts->head;
+			while(current) {
+				bool on_screen = move_blast((blast*)current->item, disp_data);
+				if(!on_screen) {
+					ast_linkedlist_remove(blasts, current);
+					ast_listnode *del = current;
+					current = current->next;
+					free(del);
+					num_shots--;
+				} else {
+					current = current->next;
+				}
+			}
 			redraw = true;
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -131,8 +145,11 @@ int main(int argc, char **argv)
 			draw_ship(s);
 			for (int i = 0; i < num_asts; i++)
 				draw_asteroid(asts[i]);
-			for (int i = 0; i < num_shots; i++)
-				draw_blast(blasts[i]);
+			ast_listnode *current = blasts->head;
+			while (current) {
+				draw_blast(current->item);
+				current = current->next;
+			}
 			al_flip_display();
 		}
 
