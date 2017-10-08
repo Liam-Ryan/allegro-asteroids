@@ -6,13 +6,10 @@ void ast_linkedlist_remove(ast_linkedlist *list, ast_listnode *node)
 		node->prev->next = node->next;
 	if (node->next)
 		node->next->prev = node->prev;
-	if(list->head == node) {
-		list->head = NULL;
-		list->tail = NULL;
-	}
+	if(list->head == node)
+		list->head = node->next;
 	if(list->tail == node)
 		list->tail = node->prev;
-
 }
 
 void ast_linkedlist_push(ast_linkedlist *list, ast_listnode *node)
