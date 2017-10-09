@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 		switch (ev.type) {
 		case ALLEGRO_EVENT_TIMER:
 			move_ship(key[KEY_UP], key[KEY_LEFT], key[KEY_RIGHT], s, disp_data);
-			if (num_asts < 20 && ev.timer.count % 3000)
+			if (num_asts < 5 && ev.timer.count % 180 == 0)
 				asts[num_asts++] = create_asteroid(disp_data, 2, 4,
 								   al_map_rgb(128, 0, 128));
 			for (int i = 0; i < num_asts; i++)
@@ -92,7 +92,8 @@ int main(int argc, char **argv)
 			}
 			ast_listnode *current = blasts->head;
 			while(current) {
-				bool on_screen = move_blast((blast*)current->item, disp_data);
+				blast *b = (blast*)current->item;
+				bool on_screen = move_blast(b, disp_data);
 				if(!on_screen) {
 					ast_linkedlist_remove(blasts, current);
 					ast_listnode *del = current;
@@ -103,6 +104,10 @@ int main(int argc, char **argv)
 					current = current->next;
 				}
 			}
+
+
+
+
 			redraw = true;
 			break;
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:

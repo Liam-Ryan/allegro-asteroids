@@ -30,6 +30,7 @@ void draw_ship_fn(void *object)
 	float x_coord = SHIP_WIDTH / 2;
 	float y_coord = SHIP_HEIGHT / 2;
 	al_draw_triangle(0, -y_coord, -x_coord, y_coord, x_coord, y_coord, ((ship*)object)->color, SHIP_LINEWIDTH);
+	al_draw_rectangle(-SHIP_WIDTH/2, -SHIP_HEIGHT/2, SHIP_WIDTH/2, SHIP_HEIGHT/2, al_map_rgb(255, 255, 255), 1);
 }
 
 int draw_ship(ship *s)
@@ -68,7 +69,5 @@ int move_ship(bool forward, bool left, bool right, ship *s, ALLEGRO_DISPLAY_MODE
 		s->vel.y = -MAX_VEL;
 
 	screen_handler_move(&s->vel, &s->pos, display_data, true);
-
-
 
 }

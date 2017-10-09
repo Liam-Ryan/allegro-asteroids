@@ -26,6 +26,7 @@ blast *create_blast(ship *s)
 void draw_blast_fn(void *object)
 {
 	al_draw_filled_circle(0, 0, BLAST_SIZE, ((blast*)object)->color);
+	al_draw_rectangle(-BLAST_SIZE, -BLAST_SIZE, BLAST_SIZE, BLAST_SIZE, al_map_rgb(255, 255, 255), 1);
 }
 
 int draw_blast(blast *b)
