@@ -27,10 +27,26 @@ ship *create_ship(float pos_x, float pos_y, ALLEGRO_COLOR color)
 
 void draw_ship_fn(void *object)
 {
+	ship *s = (ship*)object;
 	float x_coord = SHIP_WIDTH / 2;
 	float y_coord = SHIP_HEIGHT / 2;
-	al_draw_triangle(0, -y_coord, -x_coord, y_coord, x_coord, y_coord, ((ship*)object)->color, SHIP_LINEWIDTH);
-	al_draw_rectangle(-SHIP_WIDTH/2, -SHIP_HEIGHT/2, SHIP_WIDTH/2, SHIP_HEIGHT/2, al_map_rgb(255, 255, 255), 1);
+	al_draw_triangle(0, -y_coord, -x_coord, y_coord, x_coord, y_coord, s->color, SHIP_LINEWIDTH);
+	float cos_heading = (float)cos(s->heading);
+	float sin_heading = (float)sin(s->heading);
+	x_coord = s->pos.x + x_coord;
+	y_coord = s->pos.y + y_coord;
+	ALLEGRO_TRANSFORM t;
+	al_identity_transform(&t);
+	al_rotate_transform(&t, 0);
+	al_translate_transform(&t, 0, 0);
+	al_use_transform(&t);
+	float x1 = cos_heading * (x_coord - s->pos.x) - sin_heading * (y_coord - s->pos.y) + s->pos.x;
+	float y1 = sin_heading * (x_coord - s->pos.x) + cos_heading * (y_coord - s->pos.y) + s->pos.y;
+	x_coord = s->pos.x - SHIP_WIDTH/2;
+	y_coord = s->pos.y - SHIP_HEIGHT/2;
+	float x2 = cos_heading * (x_coord - s->pos.x) - sin_heading * (y_coord - s->pos.y) + s->pos.x;
+	float y2 = sin_heading * (x_coord - s->pos.x) + cos_heading * (y_coord - s->pos.y) + s->pos.y;
+	al_draw_rectangle(x1,y1,x2,y2, al_map_rgb(255, 255, 255), 1);
 }
 
 int draw_ship(ship *s)
