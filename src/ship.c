@@ -40,11 +40,11 @@ void draw_ship_fn(void *object)
 	al_rotate_transform(&t, 0);
 	al_translate_transform(&t, 0, 0);
 	al_use_transform(&t);
-	float x1 = cos_heading * (x_coord - s->pos.x) - sin_heading * (y_coord - s->pos.y) + s->pos.x;
+	float x1 = cos_heading * (x_coord - s->pos.x) + sin_heading * (y_coord - s->pos.y) + s->pos.x;
 	float y1 = sin_heading * (x_coord - s->pos.x) + cos_heading * (y_coord - s->pos.y) + s->pos.y;
 	x_coord = s->pos.x - SHIP_WIDTH/2;
 	y_coord = s->pos.y - SHIP_HEIGHT/2;
-	float x2 = cos_heading * (x_coord - s->pos.x) - sin_heading * (y_coord - s->pos.y) + s->pos.x;
+	float x2 = cos_heading * (x_coord - s->pos.x) + sin_heading * (y_coord - s->pos.y) + s->pos.x;
 	float y2 = sin_heading * (x_coord - s->pos.x) + cos_heading * (y_coord - s->pos.y) + s->pos.y;
 	al_draw_rectangle(x1,y1,x2,y2, al_map_rgb(255, 255, 255), 1);
 }
